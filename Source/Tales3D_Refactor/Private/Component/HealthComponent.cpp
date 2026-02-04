@@ -3,6 +3,19 @@
 
 #include "Component/HealthComponent.h"
 
+void UHealthComponent::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	HP = FMath::Clamp(HP, 0.f, MaxHP);
+	if (HP <= 0.f)
+	{
+		HP = MaxHP;
+	}
+	
+	OnHealthChanged.Broadcast(HP, MaxHP);
+}
+
 UHealthComponent::UHealthComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;

@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "CoreEnemy.generated.h"
 
+class UEnemyHPBarWidget;
 class UHealthComponent;
 
 UCLASS()
@@ -16,6 +17,10 @@ class ACoreEnemy : public ACharacter
 public:
 	ACoreEnemy();
 	
+protected:
+	virtual void BeginPlay() override;
+	
+public:
 	// Selects enemy (called from Controller)
 	void SetSelected(bool bSelected);
 	bool IsSelected() const { return bIsSelected; }
@@ -34,8 +39,13 @@ protected:
 	TSubclassOf<UUserWidget> HPBarWidgetClass;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Health")
 	TObjectPtr<UHealthComponent> Health;
+	// For refreshing HP on BP
+	UFUNCTION()
+	void HandleHealthChanged(float NewHP, float MaxHP);
 	
 private:
 	bool bIsSelected = false;
 	void UpdateHPBarVisibility();
+	// Gets HP Bar Widget
+	UEnemyHPBarWidget* GetHPBarWidget() const;
 };

@@ -5,6 +5,7 @@
 
 #include "Component/HealthComponent.h"
 #include "Components/WidgetComponent.h"
+#include "UI/EnemyHPBarWidget.h"
 
 ACoreEnemy::ACoreEnemy()
 {
@@ -24,12 +25,42 @@ ACoreEnemy::ACoreEnemy()
 	Health = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
 }
 
+void ACoreEnemy::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (HPBarWidget)
+	{
+		HPBarWidget->InitWidget();
+	}
+	
+	if (Health)
+	{
+		Health->OnHealthChanged.AddDynamic(this, &ACoreEnemy::HandleHealthChanged);
+	}
+}
+
 void ACoreEnemy::SetSelected(bool bSelected)
 {
 	if (bIsSelected == bSelected) return;
 	
 	bIsSelected = bSelected;
 	UpdateHPBarVisibility();
+}
+
+void ACoreEnemy::HandleHealthChanged(float NewHP, float MaxHP)
+{
+	if (UEnemyHPBarWidget* W = GetHPBarWidget())
+	{
+		W->SetHP(NewHP, MaxHP);
+	}
+}
+
+UEnemyHPBarWidget* ACoreEnemy::GetHPBarWidget() const
+{
+	if (!HPBarWidget) return nullptr;
+	
+	return Cast<UEnemyHPBarWidget>(HPBarWidget->GetUserWidgetObject());
 }
 
 void ACoreEnemy::UpdateHPBarVisibility()

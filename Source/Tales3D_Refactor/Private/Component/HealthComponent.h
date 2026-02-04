@@ -12,6 +12,8 @@ UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UHealthComponent : public UActorComponent
 {
 	GENERATED_BODY()
+protected:
+	virtual void BeginPlay() override;
 
 public:	
 	UHealthComponent();
