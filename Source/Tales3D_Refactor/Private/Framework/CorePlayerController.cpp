@@ -6,7 +6,9 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
+#include "Char/CoreCharacter.h"
 #include "Char/CoreEnemy.h"
+#include "Component/CombatComponent.h"
 
 ACorePlayerController::ACorePlayerController()
 {
@@ -52,7 +54,10 @@ void ACorePlayerController::SetupInputComponent()
 			EIC->BindAction(IA_MoveHold, ETriggerEvent::Completed, this, &ACorePlayerController::OnMoveHoldCompleted);
 			// When things such as window losing focus happen
 			EIC->BindAction(IA_MoveHold, ETriggerEvent::Canceled, this, &ACorePlayerController::OnMoveHoldCompleted);
-			
+		}
+		if (IA_BasicAttack)
+		{
+			EIC->BindAction(IA_BasicAttack, ETriggerEvent::Started, this, &ACorePlayerController::OnBasicAttackStarted);
 		}
 	}
 }
@@ -99,6 +104,19 @@ void ACorePlayerController::OnMoveHoldTriggered()
 void ACorePlayerController::OnMoveHoldCompleted()
 {
 	bMoveHeld = false;
+}
+
+void ACorePlayerController::OnBasicAttackStarted()
+{
+	if (!SelectedEnemy) return;
+
+	if (ACoreCharacter* C = Cast<ACoreCharacter>(GetPawn()))
+	{
+		if (C->Combat)
+		{
+			C->Combat->RequestBasicAttack(SelectedEnemy);
+		}
+	}
 }
 
 void ACorePlayerController::UpdateDestinationAndMove()

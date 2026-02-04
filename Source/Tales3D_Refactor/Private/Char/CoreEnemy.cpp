@@ -3,6 +3,7 @@
 
 #include "Char/CoreEnemy.h"
 
+#include "Component/HealthComponent.h"
 #include "Components/WidgetComponent.h"
 
 ACoreEnemy::ACoreEnemy()
@@ -12,12 +13,15 @@ ACoreEnemy::ACoreEnemy()
 	// HP Widget (Attaches on Root)
 	HPBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HPBarWidget"));
 	HPBarWidget->SetupAttachment(RootComponent);
-	HPBarWidget->SetRelativeLocation(FVector(0.f, 0.f, -400.f));
+	HPBarWidget->SetRelativeLocation(FVector(0.f, 0.f, -200.f));
 	// Makes it face screen
 	HPBarWidget->SetWidgetSpace(EWidgetSpace::Screen);
 	HPBarWidget->SetDrawSize(FVector2D(120.f, 16.f));
 	// Hidden until enemy selected
 	HPBarWidget->SetVisibility(false);
+	
+	// Health Component
+	Health = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
 }
 
 void ACoreEnemy::SetSelected(bool bSelected)

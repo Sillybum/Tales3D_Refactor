@@ -13,6 +13,12 @@ class ACoreCharacter : public ACharacter
 
 public:
 	ACoreCharacter();
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Combat")
+	TObjectPtr<class UCombatComponent> Combat;
+	// Combat
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="Combat|Anim")
+	void BP_PlayBasicAttack();
 
 protected:
 	/*----------
