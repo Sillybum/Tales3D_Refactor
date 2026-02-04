@@ -6,6 +6,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
+#include "Char/CoreEnemy.h"
 
 ACorePlayerController::ACorePlayerController()
 {
@@ -68,13 +69,30 @@ void ACorePlayerController::PlayerTick(float DeltaTime)
 
 void ACorePlayerController::OnMoveHoldStarted()
 {
+	FHitResult Hit;
+	const bool bHit = GetHitResultUnderCursor(ECC_Visibility, false, Hit);
+
+	if (bHit && Hit.bBlockingHit)
+	{
+		// if enemy clicked
+		if (ACoreEnemy* Enemy = Cast<ACoreEnemy>(Hit.GetActor()))
+		{
+			SelectEnemy(Enemy);
+			bMoveHeld = false;
+			return;
+		}
+	}
+	
+	// if not enemy clicked
+	ClearSelection();
 	bMoveHeld = true;
 	UpdateDestinationAndMove();
 }
 
 void ACorePlayerController::OnMoveHoldTriggered()
 {
-	bMoveHeld = true;
+	if (!bMoveHeld) return;
+	
 	UpdateDestinationAndMove();
 }
 
@@ -92,4 +110,28 @@ void ACorePlayerController::UpdateDestinationAndMove()
 	CachedDestination = Hit.ImpactPoint;
 	// NavMesh oriented Move
 	UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, CachedDestination);
+}
+
+void ACorePlayerController::SelectEnemy(ACoreEnemy* NewEnemy)
+{
+	if (SelectedEnemy == NewEnemy) return;
+
+	if (SelectedEnemy)
+	{
+		SelectedEnemy->SetSelected(false);
+	}
+	SelectedEnemy = NewEnemy;
+	if (SelectedEnemy)
+	{
+		SelectedEnemy->SetSelected(true);
+	}
+}
+
+void ACorePlayerController::ClearSelection()
+{
+	if (SelectedEnemy)
+	{
+		SelectedEnemy->SetSelected(false);
+		SelectedEnemy = nullptr;
+	}
 }

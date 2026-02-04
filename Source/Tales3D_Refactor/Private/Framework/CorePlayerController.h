@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "CorePlayerController.generated.h"
 
+class ACoreEnemy;
 class UInputAction;
 class UInputMappingContext;
 
@@ -28,6 +29,9 @@ private:
 	TObjectPtr<UInputMappingContext> IMC_Core;
 	UPROPERTY(EditDefaultsOnly, Category="Input")
 	TObjectPtr<UInputAction> IA_MoveHold;
+	// Selected Enemy
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Targeting", meta=(AllowPrivateAccess="true"))
+	TObjectPtr<ACoreEnemy> SelectedEnemy;
 	
 	// States
 	bool bMoveHeld = false;
@@ -40,4 +44,8 @@ private:
 	
 	// Actual Move Update
 	void UpdateDestinationAndMove();
+	
+	// Enemy
+	void SelectEnemy(ACoreEnemy* NewEnemy);
+	void ClearSelection();
 };
