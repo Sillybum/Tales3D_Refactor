@@ -47,4 +47,7 @@ private:
 	void StartBasicAttackNow();
 	void CheckRangeAndAttack();
 	bool IsInRange() const;
+	// Faces Target
+	void FaceTargetNow() const;
+	FVector GetTargetAimPoint() const;
 };
