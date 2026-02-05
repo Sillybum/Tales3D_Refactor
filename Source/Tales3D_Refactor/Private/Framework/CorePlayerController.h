@@ -33,6 +33,9 @@ private:
 	TObjectPtr<UInputAction> IA_BasicAttack;
 	UPROPERTY(EditDefaultsOnly, Category="Input")
 	TObjectPtr<UInputAction> IA_Skill1;
+	// Debug (to be deleted when UI created)
+	UPROPERTY(EditDefaultsOnly, Category="Input")
+	TObjectPtr<UInputAction> IA_DebugInventory;
 	
 	// Selected Enemy
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Targeting", meta=(AllowPrivateAccess="true"))
@@ -48,6 +51,7 @@ private:
 	void OnMoveHoldCompleted();
 	void OnBasicAttackStarted();
 	void OnSkill1Started();
+	void OnDebugInventoryStarted();	// Debug
 	// Actual Move Update
 	void UpdateDestinationAndMove();
 	

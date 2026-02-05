@@ -9,6 +9,7 @@
 #include "Char/CoreCharacter.h"
 #include "Char/CoreEnemy.h"
 #include "Component/CombatComponent.h"
+#include "Component/InventoryComponent.h"
 #include "Component/SkillComponent.h"
 
 ACorePlayerController::ACorePlayerController()
@@ -63,6 +64,11 @@ void ACorePlayerController::SetupInputComponent()
 		if (IA_Skill1)
 		{
 			EIC->BindAction(IA_Skill1, ETriggerEvent::Started, this, &ACorePlayerController::OnSkill1Started);
+		}
+		// Debug (to be deleted)
+		if (IA_DebugInventory)
+		{
+			EIC->BindAction(IA_DebugInventory, ETriggerEvent::Started, this, &ACorePlayerController::OnDebugInventoryStarted);
 		}
 	}
 }
@@ -134,6 +140,17 @@ void ACorePlayerController::OnSkill1Started()
 		if (C->Skills)
 		{
 			C->Skills->RequestUseSkill(TEXT("Skill1"), SelectedEnemy);
+		}
+	}
+}
+
+void ACorePlayerController::OnDebugInventoryStarted()
+{
+	if (ACoreCharacter* C = Cast<ACoreCharacter>(GetPawn()))
+	{
+		if (C->Inventory)
+		{
+			C->Inventory->DebugPrintInventory();
 		}
 	}
 }

@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "CoreCharacter.generated.h"
 
+
 UCLASS()
 class ACoreCharacter : public ACharacter
 {
@@ -20,6 +21,8 @@ public:
 	TObjectPtr<class UCombatComponent> Combat;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Skill")
 	TObjectPtr<class USkillComponent> Skills;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Inventory")
+	TObjectPtr<class UInventoryComponent> Inventory;
 	
 	// Combat
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="Combat|Anim")
