@@ -134,10 +134,5 @@ FVector UCombatComponent::GetTargetAimPoint() const
 	if (!CurrentTarget) return FVector::ZeroVector;
 	
 	FVector Aim = CurrentTarget->GetActorLocation();
-	// if (UCapsuleComponent* Cap = CurrentTarget->GetCapsuleComponent())
-	// {
-	// 	Aim.Z += Cap->GetScaledCapsuleHalfHeight();
-	// }
-	
 	return Aim;
 }

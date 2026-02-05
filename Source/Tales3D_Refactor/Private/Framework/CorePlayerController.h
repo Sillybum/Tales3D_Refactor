@@ -31,6 +31,8 @@ private:
 	TObjectPtr<UInputAction> IA_MoveHold;
 	UPROPERTY(EditDefaultsOnly, Category="Input")
 	TObjectPtr<UInputAction> IA_BasicAttack;
+	UPROPERTY(EditDefaultsOnly, Category="Input")
+	TObjectPtr<UInputAction> IA_Skill1;
 	
 	// Selected Enemy
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Targeting", meta=(AllowPrivateAccess="true"))
@@ -45,6 +47,7 @@ private:
 	void OnMoveHoldTriggered();
 	void OnMoveHoldCompleted();
 	void OnBasicAttackStarted();
+	void OnSkill1Started();
 	// Actual Move Update
 	void UpdateDestinationAndMove();
 	

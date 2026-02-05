@@ -5,6 +5,7 @@
 
 #include "Camera/CameraComponent.h"
 #include "Component/CombatComponent.h"
+#include "Component/SkillComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -38,10 +39,10 @@ ACoreCharacter::ACoreCharacter()
 	TopDownCamera->SetupAttachment(CameraBoom);
 	TopDownCamera->bUsePawnControlRotation = false;
 	/*----------
-	 * Combat Component
+	 * Custom Components
 	 ----------*/
 	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("Combat"));
-	
+	Skills = CreateDefaultSubobject<USkillComponent>(TEXT("Skill"));
 	
 
 }

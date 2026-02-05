@@ -13,12 +13,20 @@ class ACoreCharacter : public ACharacter
 
 public:
 	ACoreCharacter();
-	
+	/*----------
+	 *Custom Components
+	 ----------*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Combat")
 	TObjectPtr<class UCombatComponent> Combat;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Skill")
+	TObjectPtr<class USkillComponent> Skills;
+	
 	// Combat
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="Combat|Anim")
 	void BP_PlayBasicAttack();
+	// Skills
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="Skill|Anim")
+	void BP_PlaySkillMontage(UAnimMontage* Montage);
 
 protected:
 	/*----------

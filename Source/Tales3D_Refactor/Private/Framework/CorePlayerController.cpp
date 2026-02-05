@@ -9,6 +9,7 @@
 #include "Char/CoreCharacter.h"
 #include "Char/CoreEnemy.h"
 #include "Component/CombatComponent.h"
+#include "Component/SkillComponent.h"
 
 ACorePlayerController::ACorePlayerController()
 {
@@ -58,6 +59,10 @@ void ACorePlayerController::SetupInputComponent()
 		if (IA_BasicAttack)
 		{
 			EIC->BindAction(IA_BasicAttack, ETriggerEvent::Started, this, &ACorePlayerController::OnBasicAttackStarted);
+		}
+		if (IA_Skill1)
+		{
+			EIC->BindAction(IA_Skill1, ETriggerEvent::Started, this, &ACorePlayerController::OnSkill1Started);
 		}
 	}
 }
@@ -115,6 +120,20 @@ void ACorePlayerController::OnBasicAttackStarted()
 		if (C->Combat)
 		{
 			C->Combat->RequestBasicAttack(SelectedEnemy);
+		}
+		
+	}
+}
+
+void ACorePlayerController::OnSkill1Started()
+{
+	if (!SelectedEnemy) return;
+
+	if (ACoreCharacter* C = Cast<ACoreCharacter>(GetPawn()))
+	{
+		if (C->Skills)
+		{
+			C->Skills->RequestUseSkill(TEXT("Skill1"), SelectedEnemy);
 		}
 	}
 }
