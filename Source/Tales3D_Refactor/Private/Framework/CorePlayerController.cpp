@@ -9,6 +9,7 @@
 #include "Char/CoreCharacter.h"
 #include "Char/CoreEnemy.h"
 #include "Component/CombatComponent.h"
+#include "Component/EquipmentComponent.h"
 #include "Component/InventoryComponent.h"
 #include "Component/SkillComponent.h"
 
@@ -69,6 +70,14 @@ void ACorePlayerController::SetupInputComponent()
 		if (IA_DebugInventory)
 		{
 			EIC->BindAction(IA_DebugInventory, ETriggerEvent::Started, this, &ACorePlayerController::OnDebugInventoryStarted);
+		}
+		if (IA_EquipTest)
+		{
+			EIC->BindAction(IA_EquipTest, ETriggerEvent::Started, this, &ACorePlayerController::OnEquipTest);
+		}
+		if (IA_UnequipTest)
+		{
+			EIC->BindAction(IA_UnequipTest, ETriggerEvent::Started, this, &ACorePlayerController::OnUnequipTest);
 		}
 	}
 }
@@ -151,6 +160,29 @@ void ACorePlayerController::OnDebugInventoryStarted()
 		if (C->Inventory)
 		{
 			C->Inventory->DebugPrintInventory();
+		}
+	}
+}
+
+void ACorePlayerController::OnEquipTest()
+{
+	if (ACoreCharacter* C = Cast<ACoreCharacter>(GetPawn()))
+	{
+		if (C->Equipment)
+		{
+			const FPrimaryAssetId CassandraId(FPrimaryAssetType(TEXT("Item")), FName(TEXT("DA_Rapier_Cassandra")));
+			C->Equipment->EquipWeaponByItemId(CassandraId);
+		}
+	}
+}
+
+void ACorePlayerController::OnUnequipTest()
+{
+	if (ACoreCharacter* C = Cast<ACoreCharacter>(GetPawn()))
+	{
+		if (C->Equipment)
+		{
+			C->Equipment->UnequipWeapon();
 		}
 	}
 }

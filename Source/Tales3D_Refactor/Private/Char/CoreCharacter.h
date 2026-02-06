@@ -23,6 +23,8 @@ public:
 	TObjectPtr<class USkillComponent> Skills;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Inventory")
 	TObjectPtr<class UInventoryComponent> Inventory;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Equip")
+	TObjectPtr<class UEquipmentComponent> Equipment;
 	
 	// Combat
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="Combat|Anim")
