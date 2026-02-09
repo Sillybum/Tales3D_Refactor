@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "CoreCharacter.generated.h"
 
+class UCoreSkillData;
 
 UCLASS()
 class ACoreCharacter : public ACharacter
@@ -32,7 +33,12 @@ public:
 	// Skills
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="Skill|Anim")
 	void BP_PlaySkillMontage(UAnimMontage* Montage);
-
+	// EffectFX
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="Skill|FX")
+	void BP_SpawnSkillEffectFX(UCoreSkillData* SkillData, AActor* TargetActor);
+	// AfterImageFX
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="Skill|FX")
+	void BP_SpawnSkillAfterImageFX(UCoreSkillData* SkillData);
 protected:
 	/*----------
 	 *Components

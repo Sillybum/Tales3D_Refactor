@@ -38,6 +38,19 @@ public:
 	UFUNCTION(BlueprintPure, Category="Skill")
 	bool IsSkillActive() const { return bSkillActive; }
 	
+	UFUNCTION(BlueprintPure, Category="Skill")
+	UCoreSkillData* GetActiveSkill() const { return ActiveSkill; }
+	UFUNCTION(BlueprintPure, Category="Skill")
+	ACoreEnemy* GetActiveTarget() const { return CurrentTarget; }
+	
+	/*-----
+	 * FX
+	 -----*/
+	UFUNCTION(BlueprintCallable, Category="Skill|FX")
+	void NotifySkillEffectFX();
+	UFUNCTION(BlueprintCallable, Category="Skill|FX")
+	void NotifySkillAfterImageFX();
+	
 private:
 	// Registered Skills
 	UPROPERTY()

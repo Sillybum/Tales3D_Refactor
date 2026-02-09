@@ -80,6 +80,26 @@ void USkillComponent::NotifyActiveSkillEnded()
 	CurrentTarget = nullptr;
 }
 
+void USkillComponent::NotifySkillEffectFX()
+{
+	if (!bSkillActive || !ActiveSkill) return;
+
+	if (ACoreCharacter* OwnerChar = GetOwnerCharacter())
+	{
+		OwnerChar->BP_SpawnSkillEffectFX(ActiveSkill, CurrentTarget);
+	}
+}
+
+void USkillComponent::NotifySkillAfterImageFX()
+{
+	if (!bSkillActive || !ActiveSkill) return;
+
+	if (ACoreCharacter* OwnerChar = GetOwnerCharacter())
+	{
+		OwnerChar->BP_SpawnSkillAfterImageFX(ActiveSkill);
+	}
+}
+
 ACoreCharacter* USkillComponent::GetOwnerCharacter() const
 {
 	return Cast<ACoreCharacter>(GetOwner());
