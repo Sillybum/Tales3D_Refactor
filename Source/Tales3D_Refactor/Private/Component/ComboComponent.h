@@ -9,11 +9,13 @@
 class ACoreEnemy;
 
 UENUM(BlueprintType)
-enum class EComboWindowType : uint8
+enum class EComboState : uint8
 {
-	None,
-	Basic,
-	Skill
+	Idle,
+	Basic_Attacking,
+	Basic_Window,
+	Skill_Attacking,
+	Skill_Window
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -58,10 +60,9 @@ private:
 	UPROPERTY()
 	TObjectPtr<ACoreEnemy> CurrentTarget;
 	
-	EComboWindowType WindowType = EComboWindowType::None;
+	EComboState State = EComboState::Idle;
 	// if skill used, basic attack starts from A1 again
 	int32 BasicChainIndex = 0;
-	bool bBasicPlaying = false;
 	int32 TotalComboCount = 0;
 	
 	// Input buffer
@@ -78,9 +79,6 @@ private:
 	
 	void ConsumeOnBasicWindow();	// Consumes buffer in basic window(Skill first)
 	void ConsumeOnSkillWindow();	// Consumes basic attack buffer in skill window
-	
-	void OpenSkillWindow();
-	void CloseWindow();
 	
 	void EndCombo();
 	void DebugPrint(const FString& Msg) const;

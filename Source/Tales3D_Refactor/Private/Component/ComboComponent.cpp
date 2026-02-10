@@ -25,35 +25,29 @@ void UComboComponent::InputBasic(ACoreEnemy* Target)
 	if (!Target) return;
 	
 	CurrentTarget = Target;
-	
-	if (bBasicPlaying && WindowType == EComboWindowType::None)
-	{
-		bBasicBuffered = true;
-		DebugPrint(TEXT("Basic buffered (no window yet)"));
-		return;
-	}
 
-	// if skill is playing
-	if (OwnerChar->Skills && OwnerChar->Skills->IsSkillActive())
+	switch (State)
 	{
+	case EComboState::Skill_Attacking:
+		// unable to cancel while skill
 		bBasicBuffered = true;
 		DebugPrint(TEXT("Basic buffered (during skill"));
 		return;
-	}
-	
-	// if in skill window, can use basic attack immediately
-	if (WindowType == EComboWindowType::Skill)
-	{
+
+	case EComboState::Skill_Window:
 		bBasicBuffered = false;
-		StartBasic(1);	// from A1
+		StartBasic(1);
 		return;
-	}
-	
-	// if in Basic window, can cancel basic attack
-	if (WindowType == EComboWindowType::Basic)
-	{
+		
+	case EComboState::Basic_Attacking:
+		bBasicBuffered = true;
+		DebugPrint(TEXT("Basic buffered (no window yet)"));
+		return;
+		
+	case EComboState::Basic_Window:
 		bBasicBuffered = false;
-		const int32 Next = FMath::Clamp(BasicChainIndex + 1, 1, MaxBasicChain);
+	{
+		const int32 Next = BasicChainIndex + 1;
 		if (Next > MaxBasicChain)
 		{
 			EndCombo();
@@ -62,8 +56,11 @@ void UComboComponent::InputBasic(ACoreEnemy* Target)
 		StartBasic(Next);
 		return;
 	}
-	// if no window
-	StartBasic(1);
+	case EComboState::Idle:
+	default:
+		StartBasic(1);
+		return;
+	}
 }
 
 void UComboComponent::InputSkill(FName SkillId, ACoreEnemy* Target)
@@ -74,52 +71,69 @@ void UComboComponent::InputSkill(FName SkillId, ACoreEnemy* Target)
 	
 	CurrentTarget = Target;
 
-	if (OwnerChar->Skills->IsSkillActive())
+	if (State == EComboState::Skill_Attacking)
 	{
-		DebugPrint(TEXT("Skill input ignored (skill is active"));
+		DebugPrint(TEXT("Skill ignored (skill is active)"));
 		return;
 	}
-	if (WindowType == EComboWindowType::Skill)
+	if (State == EComboState::Skill_Window)
 	{
-		DebugPrint(TEXT("Skill input ignored (skill window: basic only"));
+		DebugPrint(TEXT("Skill ignored (skill window: basic only)"));
 		return;
 	}
 	
 	bSkillBuffered = true;
 	BufferedSkillId = SkillId;
 
-	if (WindowType == EComboWindowType::Basic)
+	if (State == EComboState::Basic_Window)
 	{
 		ConsumeOnBasicWindow();
 	}
+	else if (State == EComboState::Basic_Attacking)
+	{
+		DebugPrint(TEXT("Skill buffered (waits basic window)"));
+	}
 	else
 	{
-		DebugPrint(TEXT("Skill buffered (will consume on basic window"));
+		DebugPrint(TEXT("Skill buffered (need basic window to consume)"));	
 	}
 }
 
 void UComboComponent::NotifyBasicWindowOpen()
 {
-	// notify A1~A4
-	WindowType = EComboWindowType::Basic;
-	DebugPrint(TEXT("Basic window Open"));
-	
-	ConsumeOnBasicWindow();
+	if (State == EComboState::Basic_Attacking || State == EComboState::Basic_Window)
+	{
+		State = EComboState::Basic_Window;
+		DebugPrint(TEXT("Basic window OPEN"));
+		
+		ConsumeOnBasicWindow();
+	}
 }
 
 void UComboComponent::NotifyBasicSectionFinished()
 {
-	// when basic attack combo finished with no further input
-	DebugPrint(FString::Printf(TEXT("Basic section FINISHED A%d"), BasicChainIndex));
+	DebugPrint(FString::Printf(TEXT("Basic section FINISHED (A%d) -> EndCombo"), BasicChainIndex));
 	EndCombo();
 }
 
 void UComboComponent::NotifySkillMontageEnded()
 {
-	// Skill cannot be canceled, it opens window when its montage is over
 	DebugPrint(TEXT("Skill montage ENDED -> Skill window OPEN"));
-	OpenSkillWindow();
-	// if basic attacked already buffered, consumes
+	
+	State = EComboState::Skill_Window;
+
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(Timer_SkillWindowExpire);
+		World->GetTimerManager().SetTimer(
+			Timer_SkillWindowExpire,
+			this,
+			&UComboComponent::OnSkillWindowExpired,
+			SkillWindowDuration,
+			false
+			);
+	}
+	
 	ConsumeOnSkillWindow();
 }
 
@@ -132,12 +146,17 @@ void UComboComponent::StartBasic(int32 NextIndex)
 {
 	ACoreCharacter* OwnerChar = GetOwnerCharacter();
 	if (!OwnerChar || !OwnerChar->Combat || !CurrentTarget) return;
+
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(Timer_SkillWindowExpire);
+	}
 	
 	BasicChainIndex = NextIndex;
 	TotalComboCount++;
-	bBasicPlaying = true;
-	// if new attack, closes window
-	CloseWindow();
+	
+	State = EComboState::Basic_Attacking;
+	
 	OwnerChar->Combat->PlayBasicSection(CurrentTarget, BasicChainIndex);
 	
 	DebugPrint(FString::Printf(TEXT("Start Basic A%d | TotalCombo=%d"), BasicChainIndex, TotalComboCount));
@@ -147,47 +166,43 @@ void UComboComponent::StartSkill(FName SkillId)
 {
 	ACoreCharacter* OwnerChar = GetOwnerCharacter();
 	if (!OwnerChar || !OwnerChar->Skills || !CurrentTarget) return;
+
+	if (BasicChainIndex >= MaxBasicChain)
+	{
+		DebugPrint(TEXT("Skill blocked (already at last basic"));
+		return;
+	}
 	
 	BasicChainIndex = 0;
 	TotalComboCount++;
-	bBasicPlaying = false;
-	CloseWindow();
-	
+	State = EComboState::Skill_Attacking;
 	const bool bAccepted = OwnerChar->Skills->RequestUseSkill(SkillId, CurrentTarget);
 	if (!bAccepted)
 	{
-		DebugPrint(TEXT("Skill rejected (cooldown or invalid"));
+		DebugPrint(TEXT("Skill rejected (cooldown/invalid"));
 		TotalComboCount--;
+		
+		State = EComboState::Basic_Window;
 		return;
 	}
-	DebugPrint(FString::Printf(TEXT("Start SKILL %s | Total Combo=%d"), *SkillId.ToString(), TotalComboCount));
+	DebugPrint(FString::Printf(TEXT("Start Skill %s | TotalCombo=%d"), *SkillId.ToString(), TotalComboCount));
 }
 
 void UComboComponent::ConsumeOnBasicWindow()
 {
-	// Skillbuffer First
+	if (State != EComboState::Basic_Window) return;
+
 	if (bSkillBuffered && !BufferedSkillId.IsNone())
 	{
-		// if last basic attack, cannot skill combo
-		if (BasicChainIndex >= MaxBasicChain)
-		{
-			DebugPrint(TEXT("Skill blocked (already at last basic)"));
-			bSkillBuffered = false;
-			BufferedSkillId = NAME_None;
-		}
-		else
-		{
-			// consumes skill
-			bSkillBuffered = false;
-			const FName UseId = BufferedSkillId;
-			BufferedSkillId = NAME_None;
-			
-			StartSkill(UseId);
-			return;
-		}
+		const FName UseId = BufferedSkillId;
+		
+		bSkillBuffered = false;
+		BufferedSkillId = NAME_None;
+		
+		StartSkill(UseId);
+		return;
 	}
-	
-	// if no skill buffer
+
 	if (bBasicBuffered)
 	{
 		bBasicBuffered = false;
@@ -198,13 +213,14 @@ void UComboComponent::ConsumeOnBasicWindow()
 			EndCombo();
 			return;
 		}
-		
 		StartBasic(Next);
 	}
 }
 
 void UComboComponent::ConsumeOnSkillWindow()
 {
+	if (State != EComboState::Skill_Window) return;
+
 	if (bBasicBuffered)
 	{
 		bBasicBuffered = false;
@@ -212,21 +228,12 @@ void UComboComponent::ConsumeOnSkillWindow()
 	}
 }
 
-void UComboComponent::OpenSkillWindow()
-{
-}
-
-void UComboComponent::CloseWindow()
-{
-	WindowType = EComboWindowType::None;
-}
-
 void UComboComponent::EndCombo()
 {
-	WindowType = EComboWindowType::None;
+	State = EComboState::Idle;
+	
 	BasicChainIndex = 0;
 	TotalComboCount = 0;
-	bBasicPlaying = false;
 	
 	bBasicBuffered = false;
 	bSkillBuffered = false;
@@ -250,10 +257,9 @@ void UComboComponent::DebugPrint(const FString& Msg) const
 
 void UComboComponent::OnSkillWindowExpired()
 {
-	// if skill window ends with no further attack, combo ends
-	if (WindowType == EComboWindowType::Skill)
+	if (State == EComboState::Skill_Window)
 	{
-		DebugPrint(TEXT("Skill window EXPIRED -> Combo ends"));
+		DebugPrint(TEXT("Skill window EXPIRED -> EndCombo"));
 		EndCombo();
 	}
 }
