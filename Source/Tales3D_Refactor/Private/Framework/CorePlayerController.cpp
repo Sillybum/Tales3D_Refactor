@@ -9,6 +9,7 @@
 #include "Char/CoreCharacter.h"
 #include "Char/CoreEnemy.h"
 #include "Component/CombatComponent.h"
+#include "Component/ComboComponent.h"
 #include "Component/EquipmentComponent.h"
 #include "Component/InventoryComponent.h"
 #include "Component/SkillComponent.h"
@@ -134,7 +135,7 @@ void ACorePlayerController::OnBasicAttackStarted()
 	{
 		if (C->Combat)
 		{
-			C->Combat->RequestBasicAttack(SelectedEnemy);
+			C->Combo->InputBasic(SelectedEnemy);
 		}
 		
 	}
@@ -148,7 +149,7 @@ void ACorePlayerController::OnSkill1Started()
 	{
 		if (C->Skills)
 		{
-			C->Skills->RequestUseSkill(TEXT("Skill1"), SelectedEnemy);
+			C->Combo->InputSkill(TEXT("Skill1"), SelectedEnemy);
 		}
 	}
 }

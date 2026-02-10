@@ -27,7 +27,7 @@ public:
 	TArray<TObjectPtr<UCoreSkillData>> DefaultSkills;
 	// called by Input
 	UFUNCTION(BlueprintCallable, Category="Skill")
-	void RequestUseSkill(FName SkillId, ACoreEnemy* Target);
+	bool RequestUseSkill(FName SkillId, ACoreEnemy* Target);
 	// Applies Damage (Called by AnimNotify)
 	UFUNCTION(BlueprintCallable, Category="Skill")
 	void NotifyActiveSkillHit();

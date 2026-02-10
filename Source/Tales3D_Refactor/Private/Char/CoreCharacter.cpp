@@ -5,6 +5,7 @@
 
 #include "Camera/CameraComponent.h"
 #include "Component/CombatComponent.h"
+#include "Component/ComboComponent.h"
 #include "Component/EquipmentComponent.h"
 #include "Component/InventoryComponent.h"
 #include "Component/SkillComponent.h"
@@ -47,6 +48,6 @@ ACoreCharacter::ACoreCharacter()
 	Skills = CreateDefaultSubobject<USkillComponent>(TEXT("Skill"));
 	Inventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory"));
 	Equipment = CreateDefaultSubobject<UEquipmentComponent>(TEXT("Equipment"));
-	
+	Combo = CreateDefaultSubobject<UComboComponent>(TEXT("Combo"));
 
 }

@@ -33,13 +33,13 @@ void USkillComponent::BeginPlay()
 	}
 }
 
-void USkillComponent::RequestUseSkill(FName SkillId, ACoreEnemy* Target)
+bool USkillComponent::RequestUseSkill(FName SkillId, ACoreEnemy* Target)
 {
 	ACoreCharacter* OwnerChar = GetOwnerCharacter();
-	if (!OwnerChar || SkillId.IsNone() || !Target) return;
+	if (!OwnerChar || SkillId.IsNone() || !Target) return false;
 	
 	UCoreSkillData* Skill = SkillMap.Contains(SkillId) ? SkillMap[SkillId] : nullptr;
-	if (!CanUseSkill(Skill, Target)) return;
+	if (!CanUseSkill(Skill, Target)) return false;
 	
 	// For use in NotifyHit
 	ActiveSkill = Skill;
@@ -48,7 +48,7 @@ void USkillComponent::RequestUseSkill(FName SkillId, ACoreEnemy* Target)
 	if (IsInRange(Skill, Target))
 	{
 		StartSkillNow(Skill, Target);
-		return;
+		return true;
 	}
 	// if out of range, moves close
 	if (AController* C = OwnerChar->GetController())
@@ -61,6 +61,7 @@ void USkillComponent::RequestUseSkill(FName SkillId, ACoreEnemy* Target)
 		W->GetTimerManager().ClearTimer(Timer_CheckRange);
 		W->GetTimerManager().SetTimer(Timer_CheckRange, this, &USkillComponent::CheckRangeAndStartSkill, 0.05f, true);
 	}
+	return true;
 }
 
 void USkillComponent::NotifyActiveSkillHit()

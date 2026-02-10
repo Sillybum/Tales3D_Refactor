@@ -26,6 +26,8 @@ public:
 	TObjectPtr<class UInventoryComponent> Inventory;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Equip")
 	TObjectPtr<class UEquipmentComponent> Equipment;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Combo")
+	TObjectPtr<class UComboComponent> Combo;
 	
 	// Combat
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="Combat|Anim")
@@ -39,6 +41,9 @@ public:
 	// AfterImageFX
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="Skill|FX")
 	void BP_SpawnSkillAfterImageFX(UCoreSkillData* SkillData);
+	// Combo / plays basic attack section
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="Combat|Anim")
+	void BP_PlayBasicAttackSection(int32 SectionIndex);
 protected:
 	/*----------
 	 *Components
