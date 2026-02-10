@@ -137,6 +137,11 @@ void UComboComponent::NotifySkillMontageEnded()
 	ConsumeOnSkillWindow();
 }
 
+void UComboComponent::ForceEndCombo()
+{
+	EndCombo();
+}
+
 class ACoreCharacter* UComboComponent::GetOwnerCharacter() const
 {
 	return Cast<ACoreCharacter>(GetOwner());

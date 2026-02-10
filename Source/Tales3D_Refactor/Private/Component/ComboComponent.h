@@ -49,6 +49,10 @@ public:
 	UFUNCTION(BlueprintPure, Category="Combo")
 	int32 GetTotalComboCount() const { return TotalComboCount; }
 	
+	// When target disappeared(death, unselect, etc)
+	UFUNCTION(BlueprintCallable, Category="Combo")
+	void ForceEndCombo();
+	
 private:
 	// Rules
 	UPROPERTY(EditDefaultsOnly, Category="Combo|Rule")
