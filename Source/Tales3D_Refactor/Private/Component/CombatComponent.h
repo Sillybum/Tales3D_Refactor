@@ -18,6 +18,18 @@ class UCombatComponent : public UActorComponent
 public:	
 	UCombatComponent();
 	
+	/*----------
+	 * BasicAttack FX
+	 ----------*/
+	UPROPERTY(EditDefaultsOnly, Category="Combat|FX")
+	TObjectPtr<class UNiagaraSystem> BasicHitFX = nullptr;
+	// if you want to attach FX to a certain Socket
+	UPROPERTY(EditDefaultsOnly, Category="Combat|FX")
+	FName BasicHitFXSocket = NAME_None;
+	// Z offset for FX
+	UPROPERTY(EditDefaultsOnly, Category="Combat|FX")
+	float BasicHitFX_ZOffset = 0.f;
+	
 	// AnimNotify calls
 	UFUNCTION(BlueprintCallable, Category="Combat")
 	void NotifyBasicHit();
@@ -57,6 +69,12 @@ private:
 	FVector GetTargetAimPoint() const;
 	void ClearPending();
 	void ClearActive();
+	
+	/*----------
+	 BasicAttack FX
+	 ----------*/
+	FVector GetActiveHitPoint() const;
+	FRotator GetHitFacingRotation() const;
 	
 	
 	ACoreCharacter* GetOwnerCharacter() const;

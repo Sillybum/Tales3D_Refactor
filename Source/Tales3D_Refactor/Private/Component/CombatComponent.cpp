@@ -9,6 +9,7 @@
 #include "Char/CoreCharacter.h"
 #include "Char/CoreEnemy.h"
 #include "Components/CapsuleComponent.h"
+#include "NiagaraFunctionLibrary.h"
 
 // Sets default values for this component's properties
 UCombatComponent::UCombatComponent()
@@ -20,10 +21,24 @@ void UCombatComponent::NotifyBasicHit()
 {
 	// if (!bAttacking || !CurrentTarget) return;
 	if (!ActiveTarget) return;
-
+	// Applies Damage
 	if (UHealthComponent* H = ActiveTarget->GetHealth())
 	{
 		H->ApplyDamage(BasicDamage);
+	}
+	
+	// Hit FX
+	if (BasicHitFX)
+	{
+		const FVector SpawnLoc = GetActiveHitPoint();
+		const FRotator SpawnRot = GetHitFacingRotation();
+		
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			GetWorld(),
+			BasicHitFX,
+			SpawnLoc,
+			SpawnRot
+			);
 	}
 }
 
@@ -167,6 +182,49 @@ void UCombatComponent::ClearPending()
 void UCombatComponent::ClearActive()
 {
 	ActiveTarget = nullptr;
+}
+
+FVector UCombatComponent::GetActiveHitPoint() const
+{
+	if (!ActiveTarget) return FVector::ZeroVector;
+	
+	// if there's socket info, gets its location
+	if (BasicHitFXSocket != NAME_None)
+	{
+		if (USkeletalMeshComponent* Mesh = ActiveTarget->FindComponentByClass<USkeletalMeshComponent>())
+		{
+			if (Mesh->DoesSocketExist(BasicHitFXSocket))
+			{
+				FVector P = Mesh->GetSocketLocation(BasicHitFXSocket);
+				P.Z += BasicHitFX_ZOffset;
+				return P;
+			}
+		}
+	}
+	
+	// if no socket info, uses enemy capsule
+	FVector P = ActiveTarget->GetActorLocation();
+	if (UCapsuleComponent* Cap = ActiveTarget->GetCapsuleComponent())
+	{
+		P.Z += Cap->GetScaledCapsuleHalfHeight();
+	}
+	P.Z += BasicHitFX_ZOffset;
+	return P;
+}
+
+FRotator UCombatComponent::GetHitFacingRotation() const
+{
+	// if FX needs directional info
+	if (!ActiveTarget || !GetOwner()) return FRotator::ZeroRotator;
+	
+	FVector From = GetOwner()->GetActorLocation();
+	FVector To = ActiveTarget->GetActorLocation();
+	To.Z = From.Z;
+	
+	const FVector Dir = To - From;
+	if (Dir.IsNearlyZero()) return FRotator::ZeroRotator;
+	
+	return Dir.Rotation();
 }
 
 ACoreCharacter* UCombatComponent::GetOwnerCharacter() const
