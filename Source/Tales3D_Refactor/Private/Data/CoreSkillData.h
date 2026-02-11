@@ -65,4 +65,25 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="FX|AfterImage", meta=(EditCondition="bUseAfterImage"))
 	TSubclassOf<AActor> AfterImageWeaponActorClass;
 	
+	//==========
+	//   SFX
+	//==========
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SFX")
+	TObjectPtr<class USoundBase> SkillStartSwooshSFX = nullptr;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SFX")
+	float SkillStartSwooshVolume = 1.0f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SFX")
+	TObjectPtr<class USoundBase> SkillHitSFX = nullptr;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SFX")
+	float SkillHitVolume = 1.0f;
+	
+	// Sets socket as sound location(if None, capsule)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SFX")
+	FName SkillHitSFXSocket = NAME_None;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SFX")
+	float SkillHitSFX_ZOffset = 0.f;
 };

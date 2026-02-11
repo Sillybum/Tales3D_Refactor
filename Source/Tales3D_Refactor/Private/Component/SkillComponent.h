@@ -51,6 +51,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Skill|FX")
 	void NotifySkillAfterImageFX();
 	
+	//==========
+	// SFX
+	//==========
+	UFUNCTION(BlueprintCallable, Category="Skill|SFX")
+	void NotifySkillHitSFX();
+	
 private:
 	// Registered Skills
 	UPROPERTY()
@@ -77,4 +83,10 @@ private:
 	void CheckRangeAndStartSkill();
 	void FaceTargetNow() const;
 	float GetWorldTime() const;
+	
+	//==========
+	// SFX
+	//==========
+	void PlaySkillStartSFX() const;
+	FVector GetSkillHitPoint() const;
 };

@@ -9,6 +9,7 @@
 #include "Char/CoreEnemy.h"
 #include "Components/CapsuleComponent.h"
 #include "Data/CoreSkillData.h"
+#include "Kismet/GameplayStatics.h"
 
 USkillComponent::USkillComponent()
 {
@@ -101,6 +102,68 @@ void USkillComponent::NotifySkillAfterImageFX()
 	}
 }
 
+void USkillComponent::NotifySkillHitSFX()
+{
+	if (!ActiveSkill || !ActiveSkill->SkillHitSFX) return;
+	if (!CurrentTarget) return;
+	
+	const FVector HitPoint = GetSkillHitPoint();
+	
+	UGameplayStatics::PlaySoundAtLocation(
+		GetWorld(),
+		ActiveSkill->SkillHitSFX,
+		HitPoint,
+		ActiveSkill->SkillHitVolume
+		);
+}
+
+void USkillComponent::PlaySkillStartSFX() const
+{
+	if (!ActiveSkill || !ActiveSkill->SkillStartSwooshSFX) return;
+	
+	const AActor* OwnerActor = GetOwner();
+	if (!OwnerActor) return;
+	
+	UGameplayStatics::PlaySoundAtLocation(
+		GetWorld(),
+		ActiveSkill->SkillStartSwooshSFX,
+		OwnerActor->GetActorLocation(),
+		ActiveSkill->SkillStartSwooshVolume
+		);
+}
+
+FVector USkillComponent::GetSkillHitPoint() const
+{
+	if (!CurrentTarget) return FVector::ZeroVector;
+	
+	// if socket info, plays sound at socket
+	if (ActiveSkill && ActiveSkill->SkillHitSFXSocket != NAME_None)
+	{
+		if (USkeletalMeshComponent* Mesh = CurrentTarget->FindComponentByClass<USkeletalMeshComponent>())
+		{
+			if (Mesh->DoesSocketExist(ActiveSkill->SkillHitSFXSocket))
+			{
+				FVector P = Mesh->GetSocketLocation(ActiveSkill->SkillHitSFXSocket);
+				P.Z += ActiveSkill->SkillHitSFX_ZOffset;
+				return P;
+			}
+		}
+	}
+	
+	// if no socket info
+	FVector P = CurrentTarget->GetActorLocation();
+	if (UCapsuleComponent* Cap = CurrentTarget->GetCapsuleComponent())
+	{
+		P.Z += Cap->GetScaledCapsuleHalfHeight();
+	}
+
+	if (ActiveSkill)
+	{
+		P.Z += ActiveSkill->SkillHitSFX_ZOffset;
+	}
+	return P;
+}
+
 ACoreCharacter* USkillComponent::GetOwnerCharacter() const
 {
 	return Cast<ACoreCharacter>(GetOwner());
@@ -143,6 +206,7 @@ void USkillComponent::StartSkillNow(UCoreSkillData* Skill, ACoreEnemy* Target)
 	bSkillActive = true;
 	NextReadyTime[Skill->SkillId] = GetWorldTime() + Skill->Cooldown;
 	OwnerChar->BP_PlaySkillMontage(Skill->Montage);
+	PlaySkillStartSFX();
 }
 
 void USkillComponent::CheckRangeAndStartSkill()
