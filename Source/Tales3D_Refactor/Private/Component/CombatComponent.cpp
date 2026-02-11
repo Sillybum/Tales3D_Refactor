@@ -10,6 +10,7 @@
 #include "Char/CoreEnemy.h"
 #include "Components/CapsuleComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values for this component's properties
 UCombatComponent::UCombatComponent()
@@ -40,6 +41,8 @@ void UCombatComponent::NotifyBasicHit()
 			SpawnRot
 			);
 	}
+	// Plays sound
+	PlayBasicHitSoundAtPoint(GetActiveHitPoint());
 }
 
 void UCombatComponent::PlayBasicSection(ACoreEnemy* Target, int32 SectionIndex)
@@ -61,7 +64,8 @@ void UCombatComponent::PlayBasicSection(ACoreEnemy* Target, int32 SectionIndex)
 		
 		// Target confirmed that's referred to by HitNotify
 		ActiveTarget = PendingTarget;
-		
+		// Plays swoosh sound
+		PlayBasicSwoosh();
 		OwnerChar->BP_PlayBasicAttackSection(PendingSectionIndex);
 		ClearPending();
 		return;
@@ -128,6 +132,9 @@ void UCombatComponent::CheckRangeAndStart()
 		FaceTargetNow();
 		
 		ActiveTarget = PendingTarget;
+		
+		// Plays sound
+		PlayBasicSwoosh();
 		
 		OwnerChar->BP_PlayBasicAttackSection(PendingSectionIndex);
 		ClearPending();
@@ -225,6 +232,33 @@ FRotator UCombatComponent::GetHitFacingRotation() const
 	if (Dir.IsNearlyZero()) return FRotator::ZeroRotator;
 	
 	return Dir.Rotation();
+}
+
+void UCombatComponent::PlayBasicSwoosh() const
+{
+	if (!BasicSwooshSFX) return;
+
+	if (const AActor* OwnerActor = GetOwner())
+	{
+		UGameplayStatics::PlaySoundAtLocation(
+			GetWorld(),
+			BasicSwooshSFX,
+			OwnerActor->GetActorLocation(),
+			BasicSwooshVolume
+			);
+	}
+}
+
+void UCombatComponent::PlayBasicHitSoundAtPoint(const FVector& Point) const
+{
+	if (!BasicHitSFX) return;
+	
+	UGameplayStatics::PlaySoundAtLocation(
+		GetWorld(),
+		BasicHitSFX,
+		Point,
+		BasicHitVolume
+		);
 }
 
 ACoreCharacter* UCombatComponent::GetOwnerCharacter() const

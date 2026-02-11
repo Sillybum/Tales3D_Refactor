@@ -30,6 +30,21 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category="Combat|FX")
 	float BasicHitFX_ZOffset = 0.f;
 	
+	/*----------
+	 Sound
+	 ----------*/
+	UPROPERTY(EditDefaultsOnly, Category="Combat|SFX")
+	TObjectPtr<class USoundBase> BasicSwooshSFX = nullptr;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Combat|SFX")
+	TObjectPtr<class USoundBase> BasicHitSFX = nullptr;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Combat|SFX")
+	float BasicSwooshVolume = 1.0f;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Combat|SFX")
+	float BasicHitVolume = 1.0f;
+	
 	// AnimNotify calls
 	UFUNCTION(BlueprintCallable, Category="Combat")
 	void NotifyBasicHit();
@@ -76,6 +91,11 @@ private:
 	FVector GetActiveHitPoint() const;
 	FRotator GetHitFacingRotation() const;
 	
+	/*----------
+	 Sound
+	 ----------*/
+	void PlayBasicSwoosh() const;
+	void PlayBasicHitSoundAtPoint(const FVector& Point) const;
 	
 	ACoreCharacter* GetOwnerCharacter() const;
 };

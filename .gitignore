@@ -72,3 +72,11 @@ Plugins/**/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+
+# Assets
+Content/Fab/*
+Content/FreeModularMagicSFX/*
+Content/RealisticSwordSoundEffects/*
+Content/SlashHitVFX/*
+Content/_Core/Char/Shared/Anim/Sequence/*
+Content/_Core/Char/Shared/Mesh/*
