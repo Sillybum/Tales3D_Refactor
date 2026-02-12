@@ -10,6 +10,8 @@
 class ACoreCharacter;
 class ACoreEnemy;
 
+
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UCombatComponent : public UActorComponent
 {
@@ -44,7 +46,11 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, Category="Combat|SFX")
 	float BasicHitVolume = 1.0f;
+
 	
+	/*
+	 * Combat
+	 */
 	// AnimNotify calls
 	UFUNCTION(BlueprintCallable, Category="Combat")
 	void NotifyBasicHit();

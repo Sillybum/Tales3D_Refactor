@@ -18,6 +18,9 @@ enum class EComboState : uint8
 	Skill_Window
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnComboCountChanged, int32, NewCount);
+
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UComboComponent : public UActorComponent
 {
@@ -52,6 +55,12 @@ public:
 	// When target disappeared(death, unselect, etc)
 	UFUNCTION(BlueprintCallable, Category="Combo")
 	void ForceEndCombo();
+	
+	/*
+	 * Combo Widget
+	 */
+	UPROPERTY(BlueprintAssignable, Category="Combo")
+	FOnComboCountChanged OnComboCountChanged;
 	
 private:
 	// Rules

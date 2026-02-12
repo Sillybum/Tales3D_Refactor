@@ -160,6 +160,8 @@ void UComboComponent::StartBasic(int32 NextIndex)
 	BasicChainIndex = NextIndex;
 	TotalComboCount++;
 	
+	OnComboCountChanged.Broadcast(TotalComboCount);
+	
 	State = EComboState::Basic_Attacking;
 	
 	OwnerChar->Combat->PlayBasicSection(CurrentTarget, BasicChainIndex);
@@ -190,6 +192,7 @@ void UComboComponent::StartSkill(FName SkillId)
 		State = EComboState::Basic_Window;
 		return;
 	}
+	OnComboCountChanged.Broadcast(TotalComboCount);
 	DebugPrint(FString::Printf(TEXT("Start Skill %s | TotalCombo=%d"), *SkillId.ToString(), TotalComboCount));
 }
 
@@ -239,6 +242,8 @@ void UComboComponent::EndCombo()
 	
 	BasicChainIndex = 0;
 	TotalComboCount = 0;
+	
+	OnComboCountChanged.Broadcast(TotalComboCount);
 	
 	bBasicBuffered = false;
 	bSkillBuffered = false;
