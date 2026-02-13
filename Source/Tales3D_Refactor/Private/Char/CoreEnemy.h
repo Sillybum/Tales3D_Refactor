@@ -28,6 +28,10 @@ public:
 	UFUNCTION(BlueprintPure, Category="Health")
 	UHealthComponent* GetHealth() const { return Health; }
 	
+	// Plays Attack Montage
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="AI|Combat")
+	void BP_PlayMonsterAttack();
+	
 protected:
 	/*----------
 	 *Components
@@ -42,6 +46,7 @@ protected:
 	// For refreshing HP on BP
 	UFUNCTION()
 	void HandleHealthChanged(float NewHP, float MaxHP);
+	
 	
 private:
 	bool bIsSelected = false;
