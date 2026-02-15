@@ -7,6 +7,7 @@
 #include "Component/CombatComponent.h"
 #include "Component/ComboComponent.h"
 #include "Component/EquipmentComponent.h"
+#include "Component/HealthComponent.h"
 #include "Component/InventoryComponent.h"
 #include "Component/SkillComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -49,5 +50,32 @@ ACoreCharacter::ACoreCharacter()
 	Inventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory"));
 	Equipment = CreateDefaultSubobject<UEquipmentComponent>(TEXT("Equipment"));
 	Combo = CreateDefaultSubobject<UComboComponent>(TEXT("Combo"));
+	Health = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
+}
 
+float ACoreCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
+	class AController* EventInstigator, AActor* DamageCauser)
+{
+	if (Health && DamageAmount > 0.f)
+	{
+		Health->ApplyDamage(DamageAmount);
+	}
+	
+	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+}
+
+void ACoreCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	// Test Debug
+	if (Health)
+	{
+		Health->OnHealthChanged.AddDynamic(this, &ACoreCharacter::HandleHealthChanged);
+	}
+}
+
+void ACoreCharacter::HandleHealthChanged(float NewHP, float InMaxHP)
+{
+	UE_LOG(LogTemp, Warning, TEXT("[PlayerHP] %.0f / %.0f"), NewHP, InMaxHP);
 }

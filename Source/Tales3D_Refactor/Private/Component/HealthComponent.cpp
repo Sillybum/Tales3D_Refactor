@@ -7,11 +7,7 @@ void UHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	HP = FMath::Clamp(HP, 0.f, MaxHP);
-	if (HP <= 0.f)
-	{
-		HP = MaxHP;
-	}
+	HP = MaxHP;
 	
 	OnHealthChanged.Broadcast(HP, MaxHP);
 }

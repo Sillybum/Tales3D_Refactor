@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "CoreCharacter.generated.h"
 
+class UHealthComponent;
 class UCoreSkillData;
 
 UCLASS()
@@ -15,6 +16,13 @@ class ACoreCharacter : public ACharacter
 
 public:
 	ACoreCharacter();
+	
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+	
+protected:
+	virtual void BeginPlay() override;
+	
+public:
 	/*----------
 	 *Custom Components
 	 ----------*/
@@ -44,6 +52,11 @@ public:
 	// Combo / plays basic attack section
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="Combat|Anim")
 	void BP_PlayBasicAttackSection(int32 SectionIndex);
+	
+	// Health
+	UFUNCTION(BlueprintPure, Category="Health")
+	UHealthComponent* GetHealth() const { return Health; }
+
 protected:
 	/*----------
 	 *Components
@@ -52,4 +65,13 @@ protected:
 	TObjectPtr<class USpringArmComponent> CameraBoom;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera")
 	TObjectPtr<class UCameraComponent> TopDownCamera;
+	
+	// Health
+	UFUNCTION()
+	void HandleHealthChanged(float NewHP, float InMaxHP);
+	
+private:
+	// Health Component
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta=(AllowPrivateAccess="true"))
+	TObjectPtr<UHealthComponent> Health;
 };
