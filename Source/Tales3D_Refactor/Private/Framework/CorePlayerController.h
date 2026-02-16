@@ -64,4 +64,6 @@ private:
 	// Enemy
 	void SelectEnemy(ACoreEnemy* NewEnemy);
 	void ClearSelection();
+	UFUNCTION()
+	void OnSelectedEnemyDestroyed(AActor* DestroyedActor);
 };

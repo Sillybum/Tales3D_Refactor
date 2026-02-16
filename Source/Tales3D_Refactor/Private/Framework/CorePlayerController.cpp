@@ -129,7 +129,7 @@ void ACorePlayerController::OnMoveHoldCompleted()
 
 void ACorePlayerController::OnBasicAttackStarted()
 {
-	if (!SelectedEnemy) return;
+	if (!SelectedEnemy || SelectedEnemy->IsDead()) return;
 
 	if (ACoreCharacter* C = Cast<ACoreCharacter>(GetPawn()))
 	{
@@ -143,7 +143,7 @@ void ACorePlayerController::OnBasicAttackStarted()
 
 void ACorePlayerController::OnSkill1Started()
 {
-	if (!SelectedEnemy) return;
+	if (!SelectedEnemy || SelectedEnemy->IsDead()) return;
 
 	if (ACoreCharacter* C = Cast<ACoreCharacter>(GetPawn()))
 	{
@@ -206,11 +206,13 @@ void ACorePlayerController::SelectEnemy(ACoreEnemy* NewEnemy)
 	if (SelectedEnemy)
 	{
 		SelectedEnemy->SetSelected(false);
+		SelectedEnemy->OnDestroyed.RemoveDynamic(this, &ACorePlayerController::OnSelectedEnemyDestroyed);
 	}
 	SelectedEnemy = NewEnemy;
 	if (SelectedEnemy)
 	{
 		SelectedEnemy->SetSelected(true);
+		SelectedEnemy->OnDestroyed.AddDynamic(this, &ACorePlayerController::OnSelectedEnemyDestroyed);
 	}
 }
 
@@ -219,6 +221,15 @@ void ACorePlayerController::ClearSelection()
 	if (SelectedEnemy)
 	{
 		SelectedEnemy->SetSelected(false);
+		SelectedEnemy->OnDestroyed.RemoveDynamic(this, &ACorePlayerController::OnSelectedEnemyDestroyed);
+		SelectedEnemy = nullptr;
+	}
+}
+
+void ACorePlayerController::OnSelectedEnemyDestroyed(AActor* DestroyedActor)
+{
+	if (DestroyedActor == SelectedEnemy)
+	{
 		SelectedEnemy = nullptr;
 	}
 }

@@ -28,6 +28,8 @@ public:
 	// Health Component
 	UFUNCTION(BlueprintPure, Category="Health")
 	UHealthComponent* GetHealth() const { return Health; }
+	UFUNCTION(BlueprintPure, Category="Health")
+	bool IsDead() const { return bIsDead; }
 	
 	// Plays Attack Montage
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="AI|Combat")
