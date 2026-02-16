@@ -3,8 +3,10 @@
 
 #include "Char/CoreEnemy.h"
 
+#include "AIController.h"
 #include "Component/HealthComponent.h"
 #include "Components/WidgetComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "UI/EnemyHPBarWidget.h"
 
 ACoreEnemy::ACoreEnemy()
@@ -54,6 +56,29 @@ void ACoreEnemy::HandleHealthChanged(float NewHP, float MaxHP)
 	{
 		W->SetHP(NewHP, MaxHP);
 	}
+	
+	if (!bIsDead && NewHP <= 0.f)
+	{
+		bIsDead = true;
+		SetSelected(false);
+		SetActorEnableCollision(false);
+		
+		if (UCharacterMovementComponent* Move = GetCharacterMovement())
+		{
+			Move->StopMovementImmediately();
+			Move->DisableMovement();
+		}
+		if (AAIController* AI = Cast<AAIController>(GetController()))
+		{
+			AI->StopMovement();
+		}
+		BP_PlayMonsterDeath();
+
+		if (UWorld* World = GetWorld())
+		{
+			World->GetTimerManager().SetTimer(DeathTimerHandle, this, &ACoreEnemy::DestroyAfterDeath, DeathDestroyDelay, false);
+		}
+	}
 }
 
 UEnemyHPBarWidget* ACoreEnemy::GetHPBarWidget() const
@@ -72,4 +97,9 @@ void ACoreEnemy::UpdateHPBarVisibility()
 		HPBarWidget->SetWidgetClass(HPBarWidgetClass);
 	}
 	HPBarWidget->SetVisibility(bIsSelected);
+}
+
+void ACoreEnemy::DestroyAfterDeath()
+{
+	Destroy();
 }

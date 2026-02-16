@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "TimerManager.h"
 #include "CoreEnemy.generated.h"
 
 class UEnemyHPBarWidget;
@@ -31,6 +32,9 @@ public:
 	// Plays Attack Montage
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="AI|Combat")
 	void BP_PlayMonsterAttack();
+	// Plays Death Montage
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="AI|Combat")
+	void BP_PlayMonsterDeath();
 	
 protected:
 	/*----------
@@ -43,6 +47,8 @@ protected:
 	TSubclassOf<UUserWidget> HPBarWidgetClass;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Health")
 	TObjectPtr<UHealthComponent> Health;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Death")
+	float DeathDestroyDelay = 3.f;
 	// For refreshing HP on BP
 	UFUNCTION()
 	void HandleHealthChanged(float NewHP, float MaxHP);
@@ -50,7 +56,10 @@ protected:
 	
 private:
 	bool bIsSelected = false;
+	bool bIsDead = false;
+	FTimerHandle DeathTimerHandle;
 	void UpdateHPBarVisibility();
+	void DestroyAfterDeath();
 	// Gets HP Bar Widget
 	UEnemyHPBarWidget* GetHPBarWidget() const;
 };
