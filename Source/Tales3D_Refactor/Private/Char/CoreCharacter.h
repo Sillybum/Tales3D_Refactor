@@ -56,6 +56,9 @@ public:
 	// Death
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="Combat|Anim")
 	void BP_PlayDeath();
+	// Hit FX
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="Combat|FX")
+	void BP_PlayHitEffect();
 	
 	// Health
 	UFUNCTION(BlueprintPure, Category="Health")
@@ -83,6 +86,7 @@ private:
 	
 	bool bIsDead = false;
 	TWeakObjectPtr<AController> CachedController;
+	float LastHP = 0.f;
 	FTimerHandle DeathTimerHandle;
 	void RespawnAfterDeath();
 };

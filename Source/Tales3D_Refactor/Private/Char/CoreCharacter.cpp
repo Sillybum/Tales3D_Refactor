@@ -71,6 +71,7 @@ void ACoreCharacter::BeginPlay()
 	// Test Debug
 	if (Health)
 	{
+		LastHP = Health->GetHP();
 		Health->OnHealthChanged.AddDynamic(this, &ACoreCharacter::HandleHealthChanged);
 	}
 }
@@ -78,6 +79,12 @@ void ACoreCharacter::BeginPlay()
 void ACoreCharacter::HandleHealthChanged(float NewHP, float InMaxHP)
 {
 	UE_LOG(LogTemp, Warning, TEXT("[PlayerHP] %.0f / %.0f"), NewHP, InMaxHP);
+	
+	if (NewHP < LastHP)
+	{
+		BP_PlayHitEffect();
+	}
+	LastHP = NewHP;
 
 	if (!bIsDead && NewHP <= 0.f)
 	{
