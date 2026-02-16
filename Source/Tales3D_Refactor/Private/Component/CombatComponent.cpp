@@ -21,7 +21,7 @@ UCombatComponent::UCombatComponent()
 void UCombatComponent::NotifyBasicHit()
 {
 	// if (!bAttacking || !CurrentTarget) return;
-	if (!ActiveTarget) return;
+	if (!IsValidTarget(ActiveTarget)) return;
 	// Applies Damage
 	if (UHealthComponent* H = ActiveTarget->GetHealth())
 	{
@@ -48,7 +48,7 @@ void UCombatComponent::NotifyBasicHit()
 void UCombatComponent::PlayBasicSection(ACoreEnemy* Target, int32 SectionIndex)
 {
 	ACoreCharacter* OwnerChar = GetOwnerCharacter();
-	if (!OwnerChar || !Target) return;
+	if (!OwnerChar || !IsValidTarget(Target)) return;
 	
 	PendingTarget = Target;
 	PendingSectionIndex = SectionIndex;
@@ -94,7 +94,7 @@ void UCombatComponent::NotifyBasicSectionFinished()
 void UCombatComponent::StartMoveToTarget()
 {
 	ACoreCharacter* OwnerChar = GetOwnerCharacter();
-	if (!OwnerChar || !PendingTarget) return;
+	if (!OwnerChar || !IsValidTarget(PendingTarget)) return;
 
 	if (AController* C = OwnerChar->GetController())
 	{
@@ -111,7 +111,7 @@ void UCombatComponent::CheckRangeAndStart()
 		return;
 	}
 
-	if (!PendingTarget || PendingSectionIndex <= 0)
+	if (!IsValidTarget(PendingTarget) || PendingSectionIndex <= 0)
 	{
 		ClearPending();
 
@@ -143,7 +143,7 @@ void UCombatComponent::CheckRangeAndStart()
 
 bool UCombatComponent::IsInRange() const
 {
-	if (!PendingTarget || !GetOwner()) return false;
+	if (!IsValidTarget(PendingTarget) || !GetOwner()) return false;
 	
 	const float Dist = FVector::Dist(GetOwner()->GetActorLocation(), PendingTarget->GetActorLocation());
 	return Dist <= BasicAttackRange;
@@ -189,6 +189,11 @@ void UCombatComponent::ClearPending()
 void UCombatComponent::ClearActive()
 {
 	ActiveTarget = nullptr;
+}
+
+bool UCombatComponent::IsValidTarget(const ACoreEnemy* Target) const
+{
+	return IsValid(Target) && !Target->IsDead();
 }
 
 FVector UCombatComponent::GetActiveHitPoint() const

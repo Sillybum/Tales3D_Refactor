@@ -142,4 +142,5 @@ private:
 	void ExitAttackToChase();
 	void PerformAttackTick();
 	bool IsInAttackRange(APawn* PlayerPawn) const;
+	bool IsSelfDead() const;
 };

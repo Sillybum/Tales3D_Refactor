@@ -215,6 +215,12 @@ void AMonsterAIController::OnLoseSightExpired()
 void AMonsterAIController::UpdateAggro()
 {
 	EnsureAggreTimer();
+
+	if (IsSelfDead())
+	{
+		StopChase();
+		return;
+	}
 	
 	APawn* SelfPawn = GetPawn();
 	APawn* PlayerPawn = GetPlayerPawn();
@@ -346,6 +352,7 @@ void AMonsterAIController::EnsureAggreTimer()
 void AMonsterAIController::EnterAttack(APawn* PlayerPawn)
 {
 	if (!PlayerPawn) return;
+	if (IsSelfDead()) return;
 	
 	if (State == EMonsterAIState::Attack) return;
 	
@@ -417,6 +424,12 @@ void AMonsterAIController::PerformAttackTick()
 	APawn* SelfPawn = GetPawn();
 	APawn* PlayerPawn = Cast<APawn>(CurrentTarget.Get());
 
+	if (IsSelfDead())
+	{
+		StopChase();
+		return;
+	}
+
 	if (!SelfPawn || !PlayerPawn)
 	{
 		ExitAttackToChase();
@@ -456,4 +469,13 @@ bool AMonsterAIController::IsInAttackRange(APawn* PlayerPawn) const
 	
 	const float Dist = FVector::Dist(GetPawn()->GetActorLocation(), PlayerPawn->GetActorLocation());
 	return Dist <= AttackRange;
+}
+
+bool AMonsterAIController::IsSelfDead() const
+{
+	if (const ACoreEnemy* E = Cast<ACoreEnemy>(GetPawn()))
+	{
+		return E->IsDead();
+	}
+	return false;
 }

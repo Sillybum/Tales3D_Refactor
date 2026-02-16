@@ -90,6 +90,7 @@ private:
 	FVector GetTargetAimPoint() const;
 	void ClearPending();
 	void ClearActive();
+	bool IsValidTarget(const ACoreEnemy* Target) const;
 	
 	/*----------
 	 BasicAttack FX
