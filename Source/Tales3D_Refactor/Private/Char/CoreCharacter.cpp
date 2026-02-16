@@ -78,4 +78,33 @@ void ACoreCharacter::BeginPlay()
 void ACoreCharacter::HandleHealthChanged(float NewHP, float InMaxHP)
 {
 	UE_LOG(LogTemp, Warning, TEXT("[PlayerHP] %.0f / %.0f"), NewHP, InMaxHP);
+
+	if (!bIsDead && NewHP <= 0.f)
+	{
+		bIsDead = true;
+		CachedController = GetController();
+		SetActorEnableCollision(false);
+
+		if (UCharacterMovementComponent* Move = GetCharacterMovement())
+		{
+			Move->StopMovementImmediately();
+			Move->DisableMovement();
+		}
+		if (AController* C = GetController())
+		{
+			C->StopMovement();
+		}
+
+		BP_PlayDeath();
+
+		if (UWorld* World = GetWorld())
+		{
+			World->GetTimerManager().SetTimer(DeathTimerHandle, this, &ACoreCharacter::RespawnAfterDeath, DeathDestroyDelay, false);
+		}
+	}
+}
+
+void ACoreCharacter::RespawnAfterDeath()
+{
+	Destroy();
 }

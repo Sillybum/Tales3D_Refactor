@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "TimerManager.h"
 #include "CoreCharacter.generated.h"
 
 class UHealthComponent;
@@ -52,6 +53,9 @@ public:
 	// Combo / plays basic attack section
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="Combat|Anim")
 	void BP_PlayBasicAttackSection(int32 SectionIndex);
+	// Death
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="Combat|Anim")
+	void BP_PlayDeath();
 	
 	// Health
 	UFUNCTION(BlueprintPure, Category="Health")
@@ -74,4 +78,11 @@ private:
 	// Health Component
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UHealthComponent> Health;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Death", meta=(AllowPrivateAccess="true"))
+	float DeathDestroyDelay = 3.f;
+	
+	bool bIsDead = false;
+	TWeakObjectPtr<AController> CachedController;
+	FTimerHandle DeathTimerHandle;
+	void RespawnAfterDeath();
 };
