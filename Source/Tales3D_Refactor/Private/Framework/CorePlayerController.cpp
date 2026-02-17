@@ -13,6 +13,8 @@
 #include "Component/EquipmentComponent.h"
 #include "Component/InventoryComponent.h"
 #include "Component/SkillComponent.h"
+#include "UI/PickupMessageWidget.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
 
 ACorePlayerController::ACorePlayerController()
 {
@@ -22,6 +24,37 @@ ACorePlayerController::ACorePlayerController()
 	DefaultMouseCursor = EMouseCursor::Default;
 	bEnableClickEvents = true;
 	bEnableMouseOverEvents = true;
+}
+
+void ACorePlayerController::ShowPickupMessage(const FText& PickedItemName)
+{
+	const FText MessageText = FText::FromString(
+		FString::Printf(TEXT("\"%s\"을 획득하셨습니다."), *PickedItemName.ToString()));
+	
+	if (!PickupMessageWidgetClass)
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, MessageText.ToString());
+		}
+		return;
+	}
+
+	UPickupMessageWidget* W = CreateWidget<UPickupMessageWidget>(this, PickupMessageWidgetClass);
+	if (!W) return;
+	
+	const FVector2D ViewportSize = UWidgetLayoutLibrary::GetViewportSize(this);
+	const float StartY = ViewportSize.Y * 0.32f;
+	const int32 ClampedMaxLines = FMath::Max(1, MaxPickupMessageLines);
+	const int32 LineIndex = PickupMessageSequence % ClampedMaxLines;
+	const float TargetTopY = ViewportSize.Y * 0.58f;
+	const float TargetYMax = ViewportSize.Y * 0.84f;
+	const float TargetY = FMath::Min(TargetTopY + LineIndex * 30.f, TargetYMax);
+
+	W->AddToViewport(1000);
+	W->InitPickupMessage(MessageText, PickupMessageStartX, StartY, TargetY);
+	
+	++PickupMessageSequence;
 }
 
 void ACorePlayerController::BeginPlay()

@@ -16,6 +16,7 @@ class ACorePlayerController : public APlayerController
 	GENERATED_BODY()
 public:
 	ACorePlayerController();
+	void ShowPickupMessage(const FText& PickedItemName);
 	
 protected:
 	virtual void BeginPlay() override;
@@ -40,6 +41,12 @@ private:
 	TObjectPtr<UInputAction> IA_EquipTest;
 	UPROPERTY(EditDefaultsOnly, Category="Input")
 	TObjectPtr<UInputAction> IA_UnequipTest;
+	UPROPERTY(EditDefaultsOnly, Category="UI")
+	TSubclassOf<class UPickupMessageWidget> PickupMessageWidgetClass;
+	UPROPERTY(EditDefaultsOnly, Category="UI")
+	int32 MaxPickupMessageLines = 8;
+	UPROPERTY(EditDefaultsOnly, Category="UI")
+	float PickupMessageStartX = 24.f;
 	
 	// Selected Enemy
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Targeting", meta=(AllowPrivateAccess="true"))
@@ -48,6 +55,7 @@ private:
 	// States
 	bool bMoveHeld = false;
 	FVector CachedDestination;
+	int32 PickupMessageSequence = 0;
 	
 	// Input Callbacks
 	void OnMoveHoldStarted();
