@@ -97,4 +97,11 @@ private:
 	void DebugPrint(const FString& Msg) const;
 	
 	void OnSkillWindowExpired();
+	void SetCurrentTarget(ACoreEnemy* NewTarget);
+	void ClearCurrentTargetBindings();
+	
+	UFUNCTION()
+	void OnCurrentTargetDestroyed(AActor* DestroyedActor);
+	UFUNCTION()
+	void OnCurrentTargetHealthChanged(float NewHP, float MaxHP);
 };

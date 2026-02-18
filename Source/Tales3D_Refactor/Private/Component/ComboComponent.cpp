@@ -4,8 +4,10 @@
 #include "Component/ComboComponent.h"
 
 #include "CombatComponent.h"
-#include "SkillComponent.h"
 #include "Char/CoreCharacter.h"
+#include "Char/CoreEnemy.h"
+#include "Component/HealthComponent.h"
+#include "SkillComponent.h"
 
 UComboComponent::UComboComponent()
 {
@@ -22,9 +24,13 @@ void UComboComponent::InputBasic(ACoreEnemy* Target)
 {
 	ACoreCharacter* OwnerChar = GetOwnerCharacter();
 	if (!OwnerChar || !OwnerChar->Combat) return;
-	if (!Target) return;
+	if (!Target || Target->IsDead())
+	{
+		EndCombo();
+		return;
+	}
 	
-	CurrentTarget = Target;
+	SetCurrentTarget(Target);
 
 	switch (State)
 	{
@@ -67,9 +73,13 @@ void UComboComponent::InputSkill(FName SkillId, ACoreEnemy* Target)
 {
 	ACoreCharacter* OwnerChar = GetOwnerCharacter();
 	if (!OwnerChar || !OwnerChar->Skills) return;
-	if (!Target || SkillId.IsNone()) return;
+	if (!Target || SkillId.IsNone() || Target->IsDead())
+	{
+		EndCombo();
+		return;
+	}
 	
-	CurrentTarget = Target;
+	SetCurrentTarget(Target);
 
 	if (State == EComboState::Skill_Attacking)
 	{
@@ -118,6 +128,12 @@ void UComboComponent::NotifyBasicSectionFinished()
 
 void UComboComponent::NotifySkillMontageEnded()
 {
+	if (!CurrentTarget || CurrentTarget->IsDead())
+	{
+		EndCombo();
+		return;
+	}
+	
 	DebugPrint(TEXT("Skill montage ENDED -> Skill window OPEN"));
 	
 	State = EComboState::Skill_Window;
@@ -151,6 +167,11 @@ void UComboComponent::StartBasic(int32 NextIndex)
 {
 	ACoreCharacter* OwnerChar = GetOwnerCharacter();
 	if (!OwnerChar || !OwnerChar->Combat || !CurrentTarget) return;
+	if (CurrentTarget->IsDead())
+	{
+		EndCombo();
+		return;
+	}
 
 	if (UWorld* World = GetWorld())
 	{
@@ -173,6 +194,11 @@ void UComboComponent::StartSkill(FName SkillId)
 {
 	ACoreCharacter* OwnerChar = GetOwnerCharacter();
 	if (!OwnerChar || !OwnerChar->Skills || !CurrentTarget) return;
+	if (CurrentTarget->IsDead())
+	{
+		EndCombo();
+		return;
+	}
 
 	if (BasicChainIndex >= MaxBasicChain)
 	{
@@ -199,6 +225,11 @@ void UComboComponent::StartSkill(FName SkillId)
 void UComboComponent::ConsumeOnBasicWindow()
 {
 	if (State != EComboState::Basic_Window) return;
+	if (!CurrentTarget || CurrentTarget->IsDead())
+	{
+		EndCombo();
+		return;
+	}
 
 	if (bSkillBuffered && !BufferedSkillId.IsNone())
 	{
@@ -228,6 +259,11 @@ void UComboComponent::ConsumeOnBasicWindow()
 void UComboComponent::ConsumeOnSkillWindow()
 {
 	if (State != EComboState::Skill_Window) return;
+	if (!CurrentTarget || CurrentTarget->IsDead())
+	{
+		EndCombo();
+		return;
+	}
 
 	if (bBasicBuffered)
 	{
@@ -238,6 +274,8 @@ void UComboComponent::ConsumeOnSkillWindow()
 
 void UComboComponent::EndCombo()
 {
+	ClearCurrentTargetBindings();
+	
 	State = EComboState::Idle;
 	
 	BasicChainIndex = 0;
@@ -270,6 +308,49 @@ void UComboComponent::OnSkillWindowExpired()
 	if (State == EComboState::Skill_Window)
 	{
 		DebugPrint(TEXT("Skill window EXPIRED -> EndCombo"));
+		EndCombo();
+	}
+}
+
+void UComboComponent::SetCurrentTarget(ACoreEnemy* NewTarget)
+{
+	if (CurrentTarget == NewTarget) return;
+	
+	ClearCurrentTargetBindings();
+	CurrentTarget = NewTarget;
+	
+	if (!CurrentTarget) return;
+	
+	CurrentTarget->OnDestroyed.AddDynamic(this, &UComboComponent::OnCurrentTargetDestroyed);
+	if (UHealthComponent* H = CurrentTarget->GetHealth())
+	{
+		H->OnHealthChanged.AddDynamic(this, &UComboComponent::OnCurrentTargetHealthChanged);
+	}
+}
+
+void UComboComponent::ClearCurrentTargetBindings()
+{
+	if (!CurrentTarget) return;
+	
+	CurrentTarget->OnDestroyed.RemoveDynamic(this, &UComboComponent::OnCurrentTargetDestroyed);
+	if (UHealthComponent* H = CurrentTarget->GetHealth())
+	{
+		H->OnHealthChanged.RemoveDynamic(this, &UComboComponent::OnCurrentTargetHealthChanged);
+	}
+}
+
+void UComboComponent::OnCurrentTargetDestroyed(AActor* DestroyedActor)
+{
+	if (DestroyedActor == CurrentTarget)
+	{
+		EndCombo();
+	}
+}
+
+void UComboComponent::OnCurrentTargetHealthChanged(float NewHP, float MaxHP)
+{
+	if (NewHP <= 0.f)
+	{
 		EndCombo();
 	}
 }
