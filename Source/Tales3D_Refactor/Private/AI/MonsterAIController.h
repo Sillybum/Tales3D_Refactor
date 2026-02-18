@@ -134,7 +134,7 @@ private:
 	float AttackAcceptRadius = 110.f;
 	
 	UPROPERTY(EditDefaultsOnly, Category="AI|Attack")
-	float AttackDamage = 10.f;
+	float DefaultAttackDamage = 10.f;
 	
 	FTimerHandle Timer_Attack;
 	
@@ -143,4 +143,5 @@ private:
 	void PerformAttackTick();
 	bool IsInAttackRange(APawn* PlayerPawn) const;
 	bool IsSelfDead() const;
+	float GetAttackDamage() const;
 };

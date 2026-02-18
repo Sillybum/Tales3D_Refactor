@@ -456,7 +456,7 @@ void AMonsterAIController::PerformAttackTick()
 	
 	UGameplayStatics::ApplyDamage(
 		PlayerPawn,
-		AttackDamage,
+		GetAttackDamage(),
 		this,
 		SelfPawn,
 		UDamageType::StaticClass()
@@ -478,4 +478,13 @@ bool AMonsterAIController::IsSelfDead() const
 		return E->IsDead();
 	}
 	return false;
+}
+
+float AMonsterAIController::GetAttackDamage() const
+{
+	if (const ACoreEnemy* E = Cast<ACoreEnemy>(GetPawn()))
+	{
+		return E->GetAttackDamage();
+	}
+	return DefaultAttackDamage;
 }

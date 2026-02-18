@@ -30,6 +30,8 @@ public:
 	UHealthComponent* GetHealth() const { return Health; }
 	UFUNCTION(BlueprintPure, Category="Health")
 	bool IsDead() const { return bIsDead; }
+	UFUNCTION(BlueprintPure, Category="AI|Combat")
+	float GetAttackDamage() const { return AttackDamage; }
 	
 	// Plays Attack Montage
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="AI|Combat")
@@ -51,6 +53,8 @@ protected:
 	TObjectPtr<UHealthComponent> Health;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Death")
 	float DeathDestroyDelay = 3.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Combat")
+	float AttackDamage = 10.f;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Drop")
 	TSubclassOf<AActor> DropItemActorClass;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Drop", meta=(ClampMin="0"))
