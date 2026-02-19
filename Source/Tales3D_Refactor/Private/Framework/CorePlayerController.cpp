@@ -100,6 +100,10 @@ void ACorePlayerController::SetupInputComponent()
 		{
 			EIC->BindAction(IA_Skill1, ETriggerEvent::Started, this, &ACorePlayerController::OnSkill1Started);
 		}
+		if (IA_Skill2)
+		{
+			EIC->BindAction(IA_Skill2, ETriggerEvent::Started, this, &ACorePlayerController::OnSkill2Started);
+		}
 		// Debug (to be deleted)
 		if (IA_DebugInventory)
 		{
@@ -180,9 +184,22 @@ void ACorePlayerController::OnSkill1Started()
 
 	if (ACoreCharacter* C = Cast<ACoreCharacter>(GetPawn()))
 	{
-		if (C->Skills)
+		if (C->Skills && C->Combo)
 		{
 			C->Combo->InputSkill(TEXT("Skill1"), SelectedEnemy);
+		}
+	}
+}
+
+void ACorePlayerController::OnSkill2Started()
+{
+	if (!SelectedEnemy || SelectedEnemy->IsDead()) return;
+
+	if (ACoreCharacter* C = Cast<ACoreCharacter>(GetPawn()))
+	{
+		if (C->Skills && C->Combo)
+		{
+			C->Combo->InputSkill(TEXT("Skill2"), SelectedEnemy);
 		}
 	}
 }

@@ -34,6 +34,8 @@ private:
 	TObjectPtr<UInputAction> IA_BasicAttack;
 	UPROPERTY(EditDefaultsOnly, Category="Input")
 	TObjectPtr<UInputAction> IA_Skill1;
+	UPROPERTY(EditDefaultsOnly, Category="Input")
+	TObjectPtr<UInputAction> IA_Skill2;
 	// Debug (to be deleted when UI created)
 	UPROPERTY(EditDefaultsOnly, Category="Input")
 	TObjectPtr<UInputAction> IA_DebugInventory;
@@ -63,6 +65,7 @@ private:
 	void OnMoveHoldCompleted();
 	void OnBasicAttackStarted();
 	void OnSkill1Started();
+	void OnSkill2Started();
 	void OnDebugInventoryStarted();	// Debug
 	void OnEquipTest();
 	void OnUnequipTest();
