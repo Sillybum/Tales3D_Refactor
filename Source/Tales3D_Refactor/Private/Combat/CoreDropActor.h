@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "TimerManager.h"
 #include "CoreDropActor.generated.h"
 
 class UUserWidget;
@@ -37,11 +38,15 @@ public:
 	TSubclassOf<UUserWidget> NameWidgetClass;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Drop|Pickup")
 	TObjectPtr<class USoundBase> PickupSound = nullptr;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Drop|Arc", meta=(ClampMin="0.0"))
+	float GravityEnableDelay = 0.1f;
 	
 	UFUNCTION(BlueprintCallable, Category="Drop")
 	void ApplyItemNameToWidget();
 	UFUNCTION(BlueprintCallable, Category="Drop")
 	void UpdateNameWidgetWorldLocation();
+	UFUNCTION(BlueprintCallable, Category="Drop|Arc")
+	void LaunchInArc(const FVector& LaunchVelocity);
 	
 private:
 	UFUNCTION()
@@ -52,7 +57,9 @@ private:
 		int32 OtherBodyIndex,
 		bool bFromSweep,
 		const FHitResult& SweepResult);
+	void EnableGravityAfterLaunch();
 
 	bool bPickedUp = false;
+	FTimerHandle Timer_EnableGravity;
 
 };

@@ -4,6 +4,7 @@
 #include "Char/CoreEnemy.h"
 
 #include "AIController.h"
+#include "Combat/CoreDropActor.h"
 #include "Component/HealthComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/PrimitiveComponent.h"
@@ -152,12 +153,19 @@ void ACoreEnemy::SpawnDeathDrops()
 			const float HorizontalSpeed = FMath::FRandRange(
 				DropLaunchHorizontalSpeedMin,
 				FMath::Max(DropLaunchHorizontalSpeedMin, DropLaunchHorizontalSpeedMax));
-			const float UpwardSpeed = FMath::FRandRange(
-				DropLaunchUpwardSpeedMin,
-				FMath::Max(DropLaunchUpwardSpeedMin, DropLaunchUpwardSpeedMax));
-			const FVector LaunchVel = HorizontalDir * HorizontalSpeed + FVector::UpVector * UpwardSpeed;
+		const float UpwardSpeed = FMath::FRandRange(
+			DropLaunchUpwardSpeedMin,
+			FMath::Max(DropLaunchUpwardSpeedMin, DropLaunchUpwardSpeedMax));
+		const FVector LaunchVel = HorizontalDir * HorizontalSpeed + FVector::UpVector * UpwardSpeed;
 
+		if (ACoreDropActor* CoreDrop = Cast<ACoreDropActor>(DropActor))
+		{
+			CoreDrop->LaunchInArc(LaunchVel);
+		}
+		else
+		{
 			Prim->SetPhysicsLinearVelocity(LaunchVel);
+		}
 		}
 	}
 }

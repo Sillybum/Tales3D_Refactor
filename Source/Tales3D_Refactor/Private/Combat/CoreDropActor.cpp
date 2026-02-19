@@ -70,6 +70,34 @@ void ACoreDropActor::UpdateNameWidgetWorldLocation()
 	NameWidget->SetWorldLocation(GetActorLocation() + FVector(0.f, 0.f, NameWidgetHeight));
 }
 
+void ACoreDropActor::LaunchInArc(const FVector& LaunchVelocity)
+{
+	if (!Mesh) return;
+
+	Mesh->SetSimulatePhysics(true);
+	Mesh->SetEnableGravity(false);
+	Mesh->SetPhysicsLinearVelocity(LaunchVelocity);
+	Mesh->WakeAllRigidBodies();
+
+	if (UWorld* W = GetWorld())
+	{
+		W->GetTimerManager().ClearTimer(Timer_EnableGravity);
+		W->GetTimerManager().SetTimer(
+			Timer_EnableGravity,
+			this,
+			&ACoreDropActor::EnableGravityAfterLaunch,
+			GravityEnableDelay,
+			false
+			);
+	}
+}
+
+void ACoreDropActor::EnableGravityAfterLaunch()
+{
+	if (!Mesh) return;
+	Mesh->SetEnableGravity(true);
+}
+
 void ACoreDropActor::OnMeshBeginOverlap(
 	UPrimitiveComponent* OverlappedComp,
 	AActor* OtherActor,
