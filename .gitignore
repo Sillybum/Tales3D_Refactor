@@ -81,3 +81,6 @@ Content/SlashHitVFX/*
 Content/Low_Poly_Viking_World/*
 Content/_Core/Char/Shared/Anim/Sequence/*
 Content/_Core/Char/Shared/Mesh/*
+
+# Build
+PACK/*

@@ -32,7 +32,7 @@ ACoreCharacter::ACoreCharacter()
 	// Camera Boom
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 800.f;
+	CameraBoom->TargetArmLength = 1100.f;
 	CameraBoom->SetRelativeRotation(FRotator(-60.f, 0.f, 0.f));
 	CameraBoom->bUsePawnControlRotation = false;
 	CameraBoom->bInheritPitch	= false;
